@@ -1,0 +1,101 @@
+{
+  "657dc8d4": {
+    "/api/user": {
+      "method": "GET",
+      "count": 50,
+      "interval": 1000,
+      "fields": {
+        "id": {
+          "type": "number",
+          "min": 1,
+          "max": 100
+        },
+        "name": {
+          "type": "string",
+          "locale": "zh",
+          "length": 100
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "男",
+            "女"
+          ]
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "birthday": {
+          "type": "date",
+          "start": "1990-01-01",
+          "end": "2010-12-31"
+        },
+        "tags": {
+          "type": "array",
+          "length": 3,
+          "fields": {
+            "item": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B",
+                "C"
+              ]
+            }
+          }
+        },
+        "arrays": {
+          "type": "array",
+          "length": 3,
+          "item": {
+            "type": "string",
+            "long": 10,
+            "length": 30,
+            "locale": "zh"
+          }
+        },
+        "color": {
+          "type": "color"
+        }
+      }
+    },
+    "/api/stream": {
+      "method": "POST",
+      "stream": true,
+      "count": 20,
+      "interval": 100,
+      "fields": {
+        "content": {
+          "type": "string",
+          "locale": "zh",
+          "length": 3
+        },
+        "id": {
+          "type": "uuid"
+        },
+        "state": {
+          "type": "enum",
+          "enum": [
+            "start",
+            "success",
+            "error"
+          ]
+        },
+        "type": {
+          "type": "enum",
+          "enum": [
+            "text",
+            "plain"
+          ]
+        },
+        "time": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}

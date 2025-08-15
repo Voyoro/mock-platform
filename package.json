@@ -1,0 +1,20 @@
+{
+  "name": "nitro-app",
+  "private": true,
+  "scripts": {
+    "build": "nitro build",
+    "dev": "nitro dev"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/mockjs": "^1.0.10",
+    "h3": "^1.15.4",
+    "js-yaml": "^4.1.0",
+    "mockjs": "^1.1.0",
+    "nitropack": "^2.12.4",
+    "uuid": "^11.1.0"
+  },
+  "dependencies": {
+    "formidable": "^3.5.4"
+  }
+}
