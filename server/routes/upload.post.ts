@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
     return {
       code: 200,
       message: "success",
+      success: true,
       data: {
         mockId
       }
