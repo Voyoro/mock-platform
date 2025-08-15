@@ -43,7 +43,7 @@
 "/api/stream":
   method: POST
   stream: true
-  count: 100
+  count: 20
   interval: 100
   fields:
     content:
@@ -58,3 +58,5 @@
     type:
       type: enum
       enum: ['text', 'plain']
+    time:
+      type: date

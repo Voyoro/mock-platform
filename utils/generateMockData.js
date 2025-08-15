@@ -1,10 +1,11 @@
-import Mock from 'mockjs';
+const Mock = require('mockjs');
+
 /**
  * 根据字段配置生成 Mock.js 值
  * @param {object} fieldConfig
  * @returns {any} Mock.js 模板
  */
-function getMockValue(fieldConfig: Record<string, any>): any {
+function getMockValue(fieldConfig) {
   // 优先处理枚举
   if (fieldConfig.enum) return `@pick(${JSON.stringify(fieldConfig.enum)})`;
 
@@ -74,8 +75,8 @@ function getMockValue(fieldConfig: Record<string, any>): any {
 
 
 
-function generateMockTemplate(fields: Record<string, any>, count = 1, isArray = false) {
-  const template: Record<string, any> = {};
+function generateMockTemplate(fields, count = 1, isArray = false) {
+  const template = {};
   if (isArray) return getMockValue(fields)
   for (const key in fields) {
     const config = fields[key];
@@ -108,61 +109,76 @@ function generateMockTemplate(fields: Record<string, any>, count = 1, isArray = 
  * @param {number} delay - 每条数据的延迟(ms)
  * @param {object} res - express response 对象
  */
-export function generateMockStream(schema: Record<string, any>, count = 5, delay = 0) {
-  let index = 0
-  let controller: ReadableStreamDefaultController
-
-  const stream = new ReadableStream({
-    start(ctrl) {
-      controller = ctrl
-      sendNext()
-    },
-    cancel() {
-      console.log('客户端关闭连接')
-    }
-  })
-
-  function sendNext() {
-    if (index >= count) {
-      controller.enqueue(`event: end\ndata: {"message": "stream ended"}\n\n`)
-      controller.close()
-      return
+function generateMockStream(schema, count = 5, delay = 0, res) {
+  let index = 0;
+  let isDestroyed = false;
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  const generateNextItem = () => {
+    if (isDestroyed || index >= count) {
+      if (!isDestroyed) {
+        res.write('event: end\n');
+        res.write('data: {"message": "stream ended"}\n\n');
+        res.end();
+        isDestroyed = true;
+      }
+      return;
     }
 
     try {
-      const item = generateMockData(schema, 1)
-      controller.enqueue(`event: step\ndata: ${JSON.stringify(item)}\n\n`)
-      index++
-      if (index < count) {
-        setTimeout(sendNext, delay)
-      } else {
-        controller.enqueue(`event: end\ndata: {"message": "stream ended"}\n\n`)
-        controller.close()
-      }
-    } catch (err: any) {
-      controller.enqueue(`event: error\ndata: {"error": "${err.message}"}\n\n`)
-      controller.close()
-    }
-  }
+      // 生成一条数据
+      const item = generateMockData(schema, 1);
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
+      // 按照 SSE 格式发送数据
+      res.write('event: step\n');
+      res.write(`data: ${JSON.stringify(item)}\n\n`);
+
+      index++;
+
+      // 安排生成下一条数据
+      if (index < count) {
+        if (delay > 0) {
+          setTimeout(generateNextItem, delay);
+        } else {
+          setImmediate(generateNextItem);
+        }
+      } else {
+        // 所有数据已生成完毕
+        res.write('event: end\n');
+        res.write('data: {"message": "stream ended"}\n\n');
+        res.end();
+        isDestroyed = true;
+      }
+    } catch (err) {
+      isDestroyed = true;
+      if (!res.headersSent) {
+        res.status(500).send('Stream error: ' + err.message);
+      } else {
+        res.write('event: error\n');
+        res.write(`data: {"error": "${err.message}"}\n\n`);
+        res.end();
+      }
     }
-  })
-}
-/**
+  };
+
+  // 客户端断开时停止生成
+  res.on('close', () => {
+    isDestroyed = true;
+  });
+
+  // 开始生成数据
+  generateNextItem();
+}/**
  * 根据字段配置生成 Mock 数据
  * @param {object} fields - YAML 配置
  * @param {number} count - 数组数量
  * @returns {object|array} Mock 数据
  */
-export function generateMockData(fields: Record<string, any>, count = 1): object | any[] {
+function generateMockData(fields, count = 1) {
   const template = generateMockTemplate(fields, count);
   return Mock.mock(template);
 }
 
-export default { generateMockData, generateMockStream };
+module.exports = { generateMockData, generateMockStream };
