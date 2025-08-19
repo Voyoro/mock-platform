@@ -1,18 +1,18 @@
-import { defineEventHandler, getRouterParam, setHeader, setResponseStatus } from "h3"
-import { generateMockStream, generateMockData } from "../../../../utils/generateMockData"
-import {getMockConfig} from '../../../../utils/mockStore'
-
+import { defineEventHandler, getQuery, getRouterParam, setHeader, setResponseStatus } from "h3"
+import generateMockData from "../../../../utils/generateMockData"
+import { getMockConfig } from '../../../../utils/mockStore'
+import { generateMockStream } from "../../../../utils/generateStreamMock"
 
 export default defineEventHandler(async (event) => {
   const method = event.method // GET / POST / PUT / DELETE ...
   const mockId = getRouterParam(event, 'mockId')
-  if(!mockId) {
+  if (!mockId) {
     return {
       code: 500,
       message: 'mockId is required'
     }
   }
-  const slug = getRouterParam(event, 'slug')     // 剩余路径部分
+  const slug = getRouterParam(event, 'slug')
   const workspace = getMockConfig(mockId);
   if (!workspace) {
     setResponseStatus(event, 500)
@@ -34,17 +34,19 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const { stream, fields, count = 10, interval = 0 } = apiConfig;
+  const query = getQuery(event)
+
+  const { stream } = apiConfig;
 
   if (stream) {
     setHeader(event, 'Content-Type', 'text/event-stream')
     setHeader(event, 'Cache-Control', 'no-cache')
     setHeader(event, 'Connection', 'keep-alive')
     setHeader(event, 'Access-Control-Allow-Origin', '*')
-    return generateMockStream(fields || {}, count || 10, interval || 0,)
+    return generateMockStream(apiConfig)
   }
   else {
-    const mockData = generateMockData(fields || {}, count || 1);
+    const mockData = await generateMockData({ ...apiConfig, query: query });
     setResponseStatus(event, 200)
     return {
       code: 200,
