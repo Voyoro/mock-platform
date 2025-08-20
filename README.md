@@ -134,9 +134,70 @@ while (true) {
 
 ---
 
+### Local DB (db: true)
+Enable local persistence to reuse the same dataset instead of regenerating on every request.
+- First request generates from `fields` and writes to `DB/<mockId>.db`
+- Subsequent requests read from DB
+- Uploading a new YAML or editing local `test.yaml` clears that `mockId` DB (regenerate)
+- Independent of pagination; see next section
+
+Example:
+```yaml
+"/api/users":
+  method: GET
+  db: true
+  fields:
+    type: array
+    length: 100
+    fields:
+      id: { type: number, min: 1, max: 99999 }
+      name: { type: cname }
+```
+
+---
+
+### Pagination
+Two forms of pagination, independent of whether DB is enabled.
+
+1) Non-DB mode (in-memory, when response is an array)
+- If the response is an array and the query has `currentPage` and `pageSize`, the result is wrapped as:
+  `{ currentPage, count, pageSize, list }`
+- Example: `GET /mock/<mockId>/api/users?currentPage=1&pageSize=20`
+
+2) DB-mode pagination (`db: true`)
+- Default query param names: `currentPage` and `numberPerPage`
+- You can customize them with YAML: `page` and `size`
+- If the response is an object that contains a list under a field:
+  - Use `rowData` to specify the list field name
+  - Use `count` to specify the total field name (kept as full total)
+
+Example (object + inner list pagination, DB mode):
+```yaml
+"/api/orders":
+  method: GET
+  db: true
+  rowData: list
+  count: total
+  page: currentPage
+  size: pageSize
+  fields:
+    total: { type: number, min: 300, max: 500 }
+    list:
+      type: array
+      length: 120
+      fields:
+        id: { type: number, min: 1, max: 99999 }
+        title: { type: title }
+        price: { type: float, min: 10, max: 500, dmin: 0, dmax: 2 }
+```
+
+---
+
 ### Common Notes
 - All routes are prefixed with: `/mock/{mockId}`; the `mockId` comes from the upload response.
 - The HTTP `method` must match your YAML config.
 - SSE responses include `Access-Control-Allow-Origin: *` for easier cross‑origin testing.
 - For large payloads, prefer `stream: true` to render progressively on the client.
 
+### TODO
+- In the future, the concept of interface association may be introduced. When using a local database for storage, the data can be saved and downloaded while the CRUD implementation modifies the mock data to complete the overall process operation

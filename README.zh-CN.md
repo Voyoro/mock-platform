@@ -134,6 +134,64 @@ while (true) {
 
 ---
 
+### 本地数据库（db: true）
+启用本地持久化以复用同一份数据，避免每次都重新生成。
+- 首次访问会根据 `fields` 生成数据并写入 `DB/<mockId>.db`
+- 后续访问从库读取同一份数据
+- 上传新 YAML 或本地 `test.yaml` 变更，会自动清空该 `mockId` 的库（重新生成）
+
+示例：
+```yaml
+"/api/users":
+  method: GET
+  db: true
+  fields:
+    type: array
+    length: 100
+    fields:
+      id: { type: number, min: 1, max: 99999 }
+      name: { type: cname }
+```
+
+---
+
+### 分页
+支持两类分页，且与是否启用本地数据库相互独立：
+
+1) 非 DB 模式（内存分页，返回数组时生效）
+- 当响应为数组，且查询串带上 `currentPage` 与 `pageSize` 时，会包装为：
+  `{ currentPage, count, pageSize, list }`
+- 示例调用：`GET /mock/<mockId>/api/users?currentPage=1&pageSize=20`
+
+2) DB 模式分页（当 `db: true` 时）
+- 默认查询参数名：`currentPage` 与 `numberPerPage`
+- 可在 YAML 中自定义 `page` 与 `size`（分别对应页码和每页数量的参数名）
+- 当响应为对象且列表位于某字段时：
+  - 用 `rowData` 指定列表字段名
+  - 用 `count` 指定“总数”字段名（保留为完整总数）
+
+示例（对象 + 内部列表分页，DB 模式）：
+```yaml
+"/api/orders":
+  method: GET
+  db: true
+  rowData: list
+  count: total
+  page: currentPage
+  size: pageSize
+  fields:
+    total: { type: number, min: 300, max: 500 }
+    list:
+      type: array
+      length: 120
+      fields:
+        id: { type: number, min: 1, max: 99999 }
+        title: { type: title }
+        price: { type: float, min: 10, max: 500, dmin: 0, dmax: 2 }
+```
+
+---
+
 ### 常见说明
 - 请求前缀固定为：`/mock/{mockId}`，`{mockId}` 来源于上传 YAML 的返回值。
 - 同一路径需用不同 HTTP 方法区分（`method` 必须匹配）。
@@ -141,3 +199,5 @@ while (true) {
 - 大数据建议用 `stream: true`，前端可边接收边渲染。
 
 
+### 后续计划
+- 后续可能会引入接口关联概念 使用本地数据库存储时，能够将数据保存下载的同时 后续CRUD实现对mock的数据进行修改 完成整体的流程运转
