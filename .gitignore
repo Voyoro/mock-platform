@@ -1,5 +1,6 @@
 node_modules
 dist
+/data
 .data
 .nitro
 .cache
@@ -7,4 +8,3 @@ dist
 .env
 .env.local
 test.yaml
-data

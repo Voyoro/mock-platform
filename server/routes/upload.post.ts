@@ -1,7 +1,8 @@
 import { defineEventHandler, readBody, readMultipartFormData, setResponseStatus } from "h3";
 import { v4 } from "uuid";
 import yaml from 'js-yaml';
-import { setMockConfig } from '../../utils/mockStore'
+import { setMockConfig } from '../../store/mockStore'
+import { mockDB } from "../../memoryDB";
 
 export default defineEventHandler(async (event) => {
   const formData = await readMultipartFormData(event)
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
   try {
     const doc = yaml.load(file.toString());
     setMockConfig(mockId, doc as any)
+    mockDB.clear(mockId)
     setResponseStatus(event, 200)
     return {
       code: 200,

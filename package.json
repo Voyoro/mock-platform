@@ -8,6 +8,7 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/mockjs": "^1.0.10",
+    "@types/nedb": "^1.8.16",
     "chokidar": "^4.0.3",
     "h3": "^1.15.4",
     "js-yaml": "^4.1.0",
@@ -16,6 +17,7 @@
     "uuid": "^11.1.0"
   },
   "dependencies": {
-    "formidable": "^3.5.4"
+    "formidable": "^3.5.4",
+    "nedb": "^1.8.0"
   }
 }

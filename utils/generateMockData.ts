@@ -8,9 +8,9 @@ import { ApiConfig } from './type'
  */
 function getMockValue(fieldConfig: Record<string, any>): any {
   // 优先处理枚举
-  if (fieldConfig.enum) return `@pick(${JSON.stringify(fieldConfig.enum)})`;
+  if (fieldConfig?.enum) return `@pick(${JSON.stringify(fieldConfig.enum)})`;
 
-  switch (fieldConfig.type) {
+  switch (fieldConfig?.type) {
     case 'string':
       if (fieldConfig.format === 'email') return '@email';
       if (fieldConfig.locale === 'zh') return `@cword(${fieldConfig.length || 3})`;

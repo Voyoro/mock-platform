@@ -1,8 +1,9 @@
 // utils/mockLoader.ts
 import fs from "fs"
 import yaml from "js-yaml"
-import { setMockConfig } from "./mockStore";
+import { setMockConfig } from "../store/mockStore";
 import chokidar from "chokidar"
+import { mockDB } from "../memoryDB";
 
 let mockData: Record<string, any> = {}
 
@@ -18,6 +19,7 @@ export function initMockLoader() {
   chokidar.watch("test.yaml").on("change", () => {
     try {
       loadYaml()
+      mockDB.clear("admin")
       console.log("[mockLoader] YAML reloaded")
     } catch (e) {
       console.error("[mockLoader] Failed to reload YAML:", e)

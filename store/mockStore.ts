@@ -1,14 +1,8 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-
+import { ApiConfig } from '../utils/type';
 interface MockConfig {
-  [key: string]: {
-    method: string;
-    stream?: boolean;
-    fields: Record<string, any>;
-    count?: number;
-    interval?: number;
-  };
+  [key: string]: ApiConfig;
 }
 
 const storeFile = join(process.cwd(), 'data', 'mockStore.json')
