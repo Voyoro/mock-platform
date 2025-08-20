@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { ApiConfig } from '../utils/type';
 interface MockConfig {
   [key: string]: ApiConfig;
@@ -24,7 +24,14 @@ if (existsSync(storeFile)) {
 }
 
 // 保存到文件
+
 function saveToFile() {
+  // 确保目录存在
+  const dir = dirname(storeFile)
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true })
+  }
+  
   const obj = Object.fromEntries(mockMap.entries())
   writeFileSync(storeFile, JSON.stringify(obj, null, 2), 'utf-8')
 }
