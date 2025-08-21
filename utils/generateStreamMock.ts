@@ -11,7 +11,7 @@ import { ApiConfig } from "./type";
 
 
 export function generateMockStream(apiConfig: ApiConfig) {
-  const { fields, count = 5, delay = 0 } = apiConfig;
+  const { fields, count = 5, delay = 0, method = 'GET' } = apiConfig;
 
   let index = 0;
   let controller: ReadableStreamDefaultController;
@@ -34,7 +34,7 @@ export function generateMockStream(apiConfig: ApiConfig) {
     }
 
     try {
-      const item = generateMockData({ fields, count: 1 });
+      const item = generateMockData({ fields, count: 1, method });
       controller.enqueue(`event: step\ndata: ${JSON.stringify(item)}\n\n`);
       index++;
       if (index < count) {

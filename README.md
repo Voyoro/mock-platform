@@ -4,6 +4,42 @@ English version aligned with the simplified Chinese doc. For 中文版请见：`
 
 ---
 
+### 🔌 VS Code Extension (One‑click local run)
+
+Run the mock server directly inside VS Code and watch `mock.yaml` from your selected workspace.
+
+- Install from local VSIX
+  1) Inside `vscode-extension/`:
+  ```bash
+  npm i
+  npm run compile
+  npx --yes @vscode/vsce@2.24.0 package
+  ```
+  2) VS Code → Extensions panel → “…” → Install from VSIX… → pick the generated `.vsix`
+
+- First‑time setup
+  - Configure `mockoro.serverProjectPath` to your server project root (this repo path with `package.json`)
+  - You can also select the folder when prompted on first run
+
+- Usage
+  - Run command “Mockoro: Start”
+  - If multiple workspaces are open, you will choose which one to watch
+  - The chosen port is shown (e.g. `http://localhost:3xxx`)
+  - Editing `mock.yaml` in that workspace hot‑reloads and shows the port again
+
+- Ports & multi‑window
+  - The extension scans 3000–3999 for a free port on each start
+  - One server per window; different windows take different ports
+
+- Filenames & paths
+  - Extension mode: watches `mock.yaml` in the selected workspace (via `MOCK_YAML_PATH`)
+  - CLI mode: defaults to `test.yaml` at project root; or set explicitly:
+    ```powershell
+    $env:MOCK_YAML_PATH="C:\\path\\to\\mock.yaml"; npm run dev
+    ```
+
+---
+
 ### Quick Start
 
 1) Install and run (default http://localhost:3000)
@@ -15,7 +51,7 @@ npm run dev
 2) Upload your YAML to get a `mockId`
 ```bash
 curl -X POST http://localhost:3000/upload \
-  -F "file=@test.yaml"
+  -F "file=@mock.yaml"
 ```
 Response:
 ```json
@@ -48,7 +84,7 @@ node .output/server/index.mjs
   method: POST
   stream: true
   count: 5
-  interval: 250
+  delay: 250
   fields:
     id: { type: uuid }
     content: { type: string, locale: zh, length: 3 }
@@ -59,7 +95,7 @@ Notes:
 - Top‑level keys are your API paths; `method` must match the request method.
 - `stream: true` returns SSE stream; otherwise JSON is returned once.
 - `count`: JSON → number of items; SSE → number of events.
-- `interval` (ms): delay between SSE events.
+- `delay` (ms): delay between SSE events.
 
 ---
 
@@ -94,6 +130,38 @@ tags:
 keywords:
   type: array
   item: { type: string, long: 10, length: 6 }
+```
+
+---
+
+### ✍️ YAML Shortcuts & Compatibility
+
+- Type‑only shorthand
+```yaml
+fields:
+  name: string      # equals { type: string }
+  age: number
+  active: boolean
+  createdAt: date
+```
+
+- Key name equals type name → value can be omitted (empty)
+```yaml
+fields:
+  number:          # equals { type: number }
+  string:          # equals { type: string }
+  boolean:         # equals { type: boolean }
+  date:            # equals { type: date }
+```
+Explanation: when a field value is null/omitted, the key name is used as `type` (e.g., `number:` → `{ type: number }`).
+
+- You can freely mix with full objects when you need ranges/formats
+```yaml
+fields:
+  id: { type: number, min: 1, max: 99999 }
+  name: string
+  email: { type: string, format: email }
+  price: number
 ```
 
 ---
@@ -138,7 +206,7 @@ while (true) {
 Enable local persistence to reuse the same dataset instead of regenerating on every request.
 - First request generates from `fields` and writes to `DB/<mockId>.db`
 - Subsequent requests read from DB
-- Uploading a new YAML or editing local `test.yaml` clears that `mockId` DB (regenerate)
+- Uploading a new YAML or editing local `mock.yaml` clears that `mockId` DB (regenerate)
 - Independent of pagination; see next section
 
 Example:

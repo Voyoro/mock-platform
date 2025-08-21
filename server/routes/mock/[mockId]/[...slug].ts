@@ -5,7 +5,7 @@ import { generateMockStream } from "../../../../utils/generateStreamMock"
 import { mockDB } from '../../../../memoryDB'
 
 export default defineEventHandler(async (event) => {
-  const method = event.method // GET / POST / PUT / DELETE ...
+  const method = event.method  // GET / POST / PUT / DELETE ...
   const mockId = getRouterParam(event, 'mockId')
   if (!mockId) {
     return {
@@ -26,8 +26,8 @@ export default defineEventHandler(async (event) => {
   const path = slug ? `/${slug}` : '/'
 
   const apiConfig = workspace[path]
-
-  if (!apiConfig || apiConfig.method !== method) {
+  const apiMethod = apiConfig.method || 'GET'
+  if (!apiConfig || apiMethod !== method) {
     setResponseStatus(event, 500)
     return {
       code: 500,

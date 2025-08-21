@@ -1,0 +1,53 @@
+{
+  "name": "mockoro-helper",
+  "displayName": "Mockoro Helper",
+  "description": "在 VS Code 中一键启动 Mockoro 服务，并监听当前工作区的 mock.yaml。",
+  "version": "0.0.1",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:mockoro.start",
+    "onCommand:mockoro.stop",
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      { "command": "mockoro.start", "title": "Mockoro: Start" },
+      { "command": "mockoro.stop", "title": "Mockoro: Stop" }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Mockoro Helper 配置",
+      "properties": {
+        "mockoro.serverProjectPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Mockoro 服务项目根目录的绝对路径（包含 package.json 的目录）。插件会在该目录执行 `npm run dev`，同时设置 `MOCK_YAML_PATH` 为当前工作区的 mock.yaml。"
+        },
+        "mockoro.autoStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "VS Code 打开/启动后自动启动 Mockoro 服务（若已配置 serverProjectPath）。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p .",
+    "package": "npx --yes @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  }
+}
+
+

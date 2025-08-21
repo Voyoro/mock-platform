@@ -7,5 +7,5 @@ dist
 .output
 .env
 .env.local
-test.yaml
+mock.yaml
 DB

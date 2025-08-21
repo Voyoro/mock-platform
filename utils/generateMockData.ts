@@ -9,7 +9,6 @@ import { ApiConfig } from './type'
 function getMockValue(fieldConfig: Record<string, any>): any {
   // 优先处理枚举
   if (fieldConfig?.enum) return `@pick(${JSON.stringify(fieldConfig.enum)})`;
-
   switch (fieldConfig?.type) {
     case 'string':
       if (fieldConfig.format === 'email') return '@email';
@@ -39,11 +38,13 @@ function getMockValue(fieldConfig: Record<string, any>): any {
     case 'id':
       return '@guid';
 
-    case 'cname':
+    case 'name':
+      if (fieldConfig.locale === 'en') return 'name';
       return '@cname';
 
     case 'title':
-      return '@title';
+      if (fieldConfig.locale === 'en') return 'title';
+      return '@ctitle';
 
     case 'sentence':
       return '@sentence';
@@ -58,9 +59,7 @@ function getMockValue(fieldConfig: Record<string, any>): any {
       return '@string("1[3-9]\\d{9}")'; // 改为使用 Mock.js 语法
     case 'idcard':
       return '@string("\\d{17}[0-9X]")';
-    case 'ipv4':
-      return '@ip';
-    case 'ipv6':
+    case 'ip':
       return '@ip';
     case 'mac':
       return '@string("([A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2}")';
@@ -101,7 +100,11 @@ async function generateSingleTemplate(fields: Record<string, any>) {
   const template: Record<string, any> = {};
   for (const key in fields) {
     const config = fields[key];
-    const fieldConfig = typeof config === 'string' ? { type: config } : config;
+    const fieldConfig = (config === null || config === undefined)
+      ? { type: key }
+      : typeof config === 'string'
+        ? { type: config }
+        : config;
     template[key] = await getMockValue(fieldConfig);
   }
   return template;
