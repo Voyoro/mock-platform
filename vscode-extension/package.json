@@ -1,9 +1,9 @@
 {
-  "name": "mockoro-helper",
-  "displayName": "Mockoro Helper",
+  "name": "mockoro",
+  "displayName": "Mockoro",
   "description": "在 VS Code 中一键启动 Mockoro 服务，并监听当前工作区的 mock.yaml。",
-  "version": "0.0.1",
-  "publisher": "your-name",
+  "version": "1.0.0",
+  "publisher": "Voyoro",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -11,15 +11,24 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:mockoro.start",
-    "onCommand:mockoro.stop",
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Voyoro/mockoro.git"
+  },
+  "license": "MIT",
   "contributes": {
     "commands": [
-      { "command": "mockoro.start", "title": "Mockoro: Start" },
-      { "command": "mockoro.stop", "title": "Mockoro: Stop" }
+      {
+        "command": "mockoro.start",
+        "title": "Mockoro: Start"
+      },
+      {
+        "command": "mockoro.stop",
+        "title": "Mockoro: Stop"
+      }
     ],
     "configuration": {
       "type": "object",
@@ -49,5 +58,3 @@
     "typescript": "^5.4.0"
   }
 }
-
-

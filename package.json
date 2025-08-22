@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "nitro build",
-    "dev": "nitro dev"
+    "mockoro": "nitro dev"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

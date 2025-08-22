@@ -15,9 +15,28 @@ function loadYaml(yamlPath: string) {
 
 export function initMockLoader() {
   const yamlPath = process.env.MOCK_YAML_PATH || "mock.yaml"
-  loadYaml(yamlPath)
+  try {
+    if (!fs.existsSync(yamlPath)) {
+      console.warn(`[mockLoader] YAML not found yet: ${yamlPath}. Waiting for file creation...`)
+    } else {
+      loadYaml(yamlPath)
+      console.log("[mockLoader] YAML loaded")
+    }
+  } catch (e) {
+    console.error("[mockLoader] Failed to load YAML on start:", e)
+  }
 
-  chokidar.watch(yamlPath).on("change", () => {
+  const watcher = chokidar.watch(yamlPath)
+  watcher.on("add", () => {
+    try {
+      mockDB.clear("admin")
+      loadYaml(yamlPath)
+      console.log("[mockLoader] YAML loaded (add)")
+    } catch (e) {
+      console.error("[mockLoader] Failed to load YAML on add:", e)
+    }
+  })
+  watcher.on("change", () => {
     try {
       mockDB.clear("admin")
       loadYaml(yamlPath)

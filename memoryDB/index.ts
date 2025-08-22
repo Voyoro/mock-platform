@@ -1,7 +1,7 @@
 // database.ts
 import Datastore from 'nedb'
 import { join } from 'path'
-import { ApiConfig } from 'utils/type'
+import { ApiConfig } from '../utils/type'
 
 type RecordType = Record<string, any>
 
