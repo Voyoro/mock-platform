@@ -1,0 +1,18 @@
+{
+  "name": "nitro-app-prod",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "async": "0.2.10",
+    "binary-search-tree": "0.2.5",
+    "chokidar": "4.0.3",
+    "js-yaml": "4.1.0",
+    "mkdirp": "0.5.6",
+    "mockjs": "1.1.0",
+    "nedb": "1.8.0",
+    "readdirp": "4.1.2",
+    "underscore": "1.4.4",
+    "uuid": "11.1.0"
+  }
+}
